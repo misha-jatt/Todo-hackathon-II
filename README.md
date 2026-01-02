@@ -30,8 +30,8 @@ A modern, keyboard-driven Terminal User Interface (TUI) for managing todo tasks.
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/misha-jatt/Todo-hackathon-II
-cd TODO-HACKATHON-II
+git clone https://github.com/misha-jatt/Todo-hackathon-II.git
+cd Todo-hackathon-II
 ```
 
 2. Install dependencies:
