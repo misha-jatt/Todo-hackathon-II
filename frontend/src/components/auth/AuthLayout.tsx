@@ -52,7 +52,7 @@ export function AuthLayout({ children, title, subtitle }: AuthLayoutProps) {
                   supercharged.
                 </span>
               </h1>
-              <p className="text-lg text-white/70 max-w-md leading-relaxed">
+              <p className="text-lg text-white/70 max-w-[480px] leading-7 whitespace-normal break-normal">
                 The intelligent task manager that learns your workflow and helps you achieve more with less effort.
               </p>
             </div>
