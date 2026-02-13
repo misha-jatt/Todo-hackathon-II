@@ -1,0 +1,50 @@
+# Docker Compose for Todo App
+# Frontend connects to HuggingFace Space API over HTTPS
+
+version: '3.8'
+
+services:
+  # Frontend - Next.js application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # API URL for your HuggingFace Space (HTTPS)
+        NEXT_PUBLIC_API_URL: https://mishajatt96-todoappapi.hf.space
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://mishajatt96-todoappapi.hf.space
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+
+  # Backend - FastAPI (optional, for local development)
+  # Uncomment if you want to run backend locally instead of HuggingFace
+  # backend:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "8000:7860"
+  #   environment:
+  #     - DATABASE_URL=${DATABASE_URL}
+  #     - JWT_SECRET=${JWT_SECRET}
+  #     - FRONTEND_URL=http://localhost:3000
+  #     - ENVIRONMENT=development
+  #     - GEMINI_API_KEY=${GEMINI_API_KEY}
+  #     - GEMINI_MODEL=gemini-2.0-flash-exp
+  #     - GEMINI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai/
+  #   healthcheck:
+  #     test: ["CMD", "curl", "-f", "http://localhost:7860/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 10s
+  #   restart: unless-stopped

@@ -1,4 +1,6 @@
 # Multi-stage Dockerfile for Next.js Frontend (Standalone Node.js)
+# Configured to connect to HuggingFace Space API
+
 # Stage 1: Build stage - Install dependencies and build Next.js app
 FROM node:20-alpine AS builder
 
@@ -17,7 +19,11 @@ RUN pnpm install --frozen-lockfile
 # Copy source code
 COPY . .
 
-# Build Next.js application
+# Build argument for API URL (passed at build time)
+ARG NEXT_PUBLIC_API_URL=https://mishajatt96-todoappapi.hf.space
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+
+# Build Next.js application with the API URL baked in
 RUN pnpm build
 
 # Stage 2: Production stage - Run standalone Next.js server
@@ -47,6 +53,10 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
 
 # Set environment to production
 ENV NODE_ENV=production
+
+# Runtime environment variable (can be overridden)
+ARG NEXT_PUBLIC_API_URL=https://mishajatt96-todoappapi.hf.space
+ENV NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
 
 # Start the Next.js standalone server
 CMD ["node", "server.js"]
