@@ -51,6 +51,19 @@ COPY --from=builder /app/.venv /app/.venv
 # Copy application code
 COPY . .
 
+# Create startup script that loads HuggingFace secrets
+RUN echo '#!/bin/bash\n\
+echo "===== Application Startup at $(date) ====="\n\
+echo "Loading environment variables..."\n\
+# HuggingFace passes secrets as environment variables directly\n\
+# Print debug info (without values)\n\
+echo "DATABASE_URL is set: $([ -n \"$DATABASE_URL\" ] && echo yes || echo no)"\n\
+echo "JWT_SECRET is set: $([ -n \"$JWT_SECRET\" ] && echo yes || echo no)"\n\
+echo "FRONTEND_URL is set: $([ -n \"$FRONTEND_URL\" ] && echo yes || echo no)"\n\
+# Start the application\n\
+exec uvicorn main:app --host 0.0.0.0 --port 7860\n\
+' > /app/start.sh && chmod +x /app/start.sh
+
 # Expose port (HuggingFace Spaces default is 7860)
 EXPOSE 7860
 
@@ -58,5 +71,5 @@ EXPOSE 7860
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
     CMD curl -f http://localhost:7860/health || exit 1
 
-# Run the application with uvicorn on port 7860
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "7860"]
+# Run via startup script
+CMD ["/app/start.sh"]
