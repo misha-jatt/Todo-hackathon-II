@@ -40,6 +40,11 @@ export async function serverFetch<T>({
     'Content-Type': 'application/json',
   };
 
+  // Send API gateway secret (server-side only, never exposed to browser)
+  if (process.env.API_GATEWAY_SECRET) {
+    (headers as Record<string, string>)['X-Gateway-Secret'] = process.env.API_GATEWAY_SECRET;
+  }
+
   // Forward cookies from the incoming request
   const allCookies = cookieStore.getAll();
   if (allCookies.length > 0) {

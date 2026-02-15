@@ -1,4 +1,4 @@
-"""JWT middleware for FastAPI.
+"""JWT middleware and API gateway secret validation for FastAPI.
 
 [Task]: T012
 [From]: specs/001-user-auth/quickstart.md
@@ -9,6 +9,45 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from core.security import JWTManager
+from core.config import get_settings
+import hmac
+
+
+class GatewaySecretMiddleware(BaseHTTPMiddleware):
+    """Validates X-Gateway-Secret header on all /api/* requests.
+
+    Blocks direct public access to the backend when API_GATEWAY_SECRET is set.
+    Only the frontend proxy (Next.js) knows this secret — browsers never see it.
+    If API_GATEWAY_SECRET is not set, this middleware is a no-op (passthrough).
+    """
+
+    OPEN_PATHS = ["/", "/docs", "/redoc", "/openapi.json", "/health"]
+
+    async def dispatch(self, request: Request, call_next: Callable):
+        settings = get_settings()
+        secret = settings.api_gateway_secret
+
+        # No secret configured → passthrough (dev mode)
+        if not secret:
+            return await call_next(request)
+
+        # Allow public/health endpoints without secret
+        if request.url.path in self.OPEN_PATHS:
+            return await call_next(request)
+
+        # Allow CORS preflight
+        if request.method == "OPTIONS":
+            return await call_next(request)
+
+        # Validate the gateway secret header
+        provided = request.headers.get("X-Gateway-Secret", "")
+        if not hmac.compare_digest(provided, secret):
+            return JSONResponse(
+                status_code=403,
+                content={"detail": "Forbidden: invalid gateway secret"},
+            )
+
+        return await call_next(request)
 
 
 class JWTMiddleware(BaseHTTPMiddleware):

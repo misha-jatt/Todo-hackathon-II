@@ -31,6 +31,10 @@ class Settings(BaseSettings):
     # Environment
     environment: str = "development"
 
+    # API Gateway Secret — shared key between frontend proxy and backend
+    # Rejects requests that don't include this key (blocks direct public access)
+    api_gateway_secret: str | None = None
+
     # Gemini API (Phase III: AI Chatbot)
     gemini_api_key: str | None = None  # Optional for migration/setup
     gemini_model: str = "gemini-2.0-flash-exp"

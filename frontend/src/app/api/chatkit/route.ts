@@ -41,6 +41,10 @@ export async function POST(request: NextRequest) {
     if (contentType) {
       headers.set('content-type', contentType);
     }
+    // Send API gateway secret (server-side only, never exposed to browser)
+    if (process.env.API_GATEWAY_SECRET) {
+      headers.set('X-Gateway-Secret', process.env.API_GATEWAY_SECRET);
+    }
 
     // Get request body
     let body: string | null = null;

@@ -83,6 +83,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Add API gateway secret middleware (blocks direct public access when secret is set)
+from core.gateway import GatewaySecretMiddleware
+app.add_middleware(GatewaySecretMiddleware)
+
 # Include routers
 app.include_router(auth_router)  # Authentication endpoints
 app.include_router(tasks_router)  # Task management endpoints
