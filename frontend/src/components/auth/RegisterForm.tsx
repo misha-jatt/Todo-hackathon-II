@@ -80,7 +80,7 @@ export function RegisterForm() {
     } catch (err: unknown) {
       if (err instanceof Error) {
         if (err.message.includes("already registered")) {
-          setError("Email already registered");
+          setError("EMAIL_EXISTS");
         } else if (err.message.includes("Invalid email format")) {
           setError("Invalid email format");
         } else if (err.message.includes("Password must be at least")) {
@@ -171,7 +171,20 @@ export function RegisterForm() {
       {/* Error message - Notion-style subtle alert */}
       {error && (
         <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
-          <p className="text-sm text-destructive">{error}</p>
+          {error === "EMAIL_EXISTS" ? (
+            <p className="text-sm text-destructive">
+              This email is already registered.{" "}
+              <a
+                href="/login"
+                className="font-medium underline underline-offset-4 hover:text-destructive/80"
+              >
+                Sign in instead
+              </a>{" "}
+              or use a different email.
+            </p>
+          ) : (
+            <p className="text-sm text-destructive">{error}</p>
+          )}
         </div>
       )}
 
